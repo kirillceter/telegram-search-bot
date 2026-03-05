@@ -11,11 +11,14 @@ bot = Bot(TOKEN)
 dp = Dispatcher()
 
 
+
 async def search(query):
 
-    url = f"https://www.google.com/search?q=site:t.me+{query}"
+    url = f"https://www.google.com/search?q=site:t.me+{query}&num=10"
 
-    headers = {"User-Agent": "Mozilla/5.0"}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+    }
 
     async with aiohttp.ClientSession(headers=headers) as session:
 
@@ -23,20 +26,13 @@ async def search(query):
 
             html = await resp.text()
 
-    soup = BeautifulSoup(html, "html.parser")
-
     links = []
 
-    for a in soup.select("a"):
+    for part in html.split("https://t.me/"):
 
-        href = a.get("href")
+        if "/" in part:
 
-        if not href:
-            continue
-
-        if "url?q=" in href and "t.me/" in href:
-
-            link = href.split("url?q=")[1].split("&")[0]
+            link = "https://t.me/" + part.split('"')[0]
 
             if link not in links:
 
